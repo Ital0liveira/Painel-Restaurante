@@ -1,3 +1,4 @@
+//Área
 export interface Area {
     id : number;
     name: string;
@@ -40,5 +41,6 @@ checkpad:{
 
 subtotal: number;
 mainIdentifier: string | null;
+customerName?: string;
 numberOfCustomers: number;
 }

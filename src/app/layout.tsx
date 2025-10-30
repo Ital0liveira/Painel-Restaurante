@@ -6,8 +6,8 @@ import { StoreProvider } from './StoreProvider';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Painel Restaurante',
-  description: 'Gerenciamento de checkpads',
+  title: 'Solas Restaurante',
+  description: 'Painel de gerenciamento do Solas Restaurante',
 };
 
 export default function RootLayout({
@@ -18,9 +18,6 @@ export default function RootLayout({
   return (
     <html lang="pt-br">
       <body className={inter.className}>
-        {
-          
-        }
         <StoreProvider>
           {children}
         </StoreProvider>
