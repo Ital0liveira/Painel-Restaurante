@@ -28,7 +28,6 @@ function normalizePhone(input: string): string {
 
 function formatPhoneDisplay(input: string): string {
   const digits = normalizePhone(input);
-  // Desired: DDD + número, sem +55. Ex.: 11 91234-5678 ou (11) 91234-5678
   if (digits.length <= 2) return `${digits}`;
   if (digits.length <= 7) return `(${digits.slice(0,2)}) ${digits.slice(2)}`;
   if (digits.length <= 11)
@@ -52,7 +51,6 @@ export default function CreateOrderSheetModal() {
     return new Set<string>([...orderMain, ...checkpadIds]);
   }, [allOrderSheets, allCheckpads]);
 
-  // Informações sobre comandas existentes na mesa selecionada
   const selectedCheckpadInfo = useMemo(() => {
     if (!state.step2.checkpadId) return null;
     const checkpad = allCheckpads.find(c => c.id === state.step2.checkpadId);
@@ -109,7 +107,6 @@ export default function CreateOrderSheetModal() {
   const onBack = () => dispatch(backToStep1());
 
   const onConfirm = () => {
-    // Validar área quando houver múltiplas
     if ((mockAreas ?? []).length > 1 && (state.step2.areaId == null)) {
       dispatch(addToast({ message: 'Selecione uma área', type: 'error' }));
       return;
@@ -127,32 +124,27 @@ export default function CreateOrderSheetModal() {
       return;
     }
 
-    // Gerar ID único para a nova comanda (incrementar do maior ID existente)
     const maxId = allOrderSheets.length > 0
       ? Math.max(...allOrderSheets.map(o => o.id))
       : 0;
     const newOrderSheetId = maxId + 1;
 
-    // Determinar mainIdentifier (prioridade: visibleIdentifier > customerName > telefone formatado)
     const mainIdentifier = state.step1.visibleIdentifier.trim() ||
       state.step1.customerName.trim() ||
       state.step1.customerPhone.trim() ||
       String(newOrderSheetId);
 
-    // Buscar atendente selecionado ou usar padrão
     const selectedAttendantId = state.step1.attendantId;
     const selectedAttendant = selectedAttendantId 
       ? mockAttendants.find(a => a.id === selectedAttendantId)
       : null;
 
-    // Se nenhum atendente foi selecionado, usar o padrão
     const author = selectedAttendant ?? {
       id: 127,
       name: 'Guilherme 2',
       type: 'seller',
     };
 
-    // Criar a nova comanda
     dispatch(
       addOrderSheet({
         id: newOrderSheetId,
@@ -162,12 +154,11 @@ export default function CreateOrderSheetModal() {
         checkpadId: checkpad.id,
         checkpadHash: checkpad.hash,
         checkpadIdentifier: checkpad.identifier,
-        numberOfCustomers: 1, // Padrão, pode ser ajustado no futuro
+        numberOfCustomers: 1,
         author,
       })
     );
 
-    // Adicionar comanda ao checkpad (e ativar se estiver vazia)
     dispatch(
       addOrderSheetToCheckpad({
         checkpadId: checkpad.id,
@@ -175,7 +166,6 @@ export default function CreateOrderSheetModal() {
       })
     );
 
-    // Se mesa estava vazia, ativar (já é feito pelo addOrderSheetToCheckpad, mas mantemos para highlight)
     if (checkpad.activity === 'empty') {
       dispatch(setHighlight({ checkpadId: selectedId, durationMs: 5000 }));
     }
@@ -187,9 +177,7 @@ export default function CreateOrderSheetModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex">
-      {/* overlay */}
       <div className="flex-1 bg-black/40" onClick={onClose} />
-      {/* panel */}
       <div className="w-full max-w-md h-full bg-white shadow-xl border-l p-5 overflow-y-auto">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900">Nova comanda</h2>

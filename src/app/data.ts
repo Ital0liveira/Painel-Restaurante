@@ -1,6 +1,5 @@
 import { Checkpad, Area, OrderSheet } from './interfaces';
 
-// Lista de atendentes disponíveis
 export const mockAttendants = [
   { id: 127, name: 'Guilherme 2', type: 'seller' },
   { id: 128, name: 'Maria Silva', type: 'seller' },
@@ -8,7 +7,6 @@ export const mockAttendants = [
   { id: 130, name: 'Ana Costa', type: 'seller' },
 ];
 
-// Mock enviado pelo usuário — Listagem de áreas (estrutura completa)
 const areasFromUser = [
   {
     id: 32,
@@ -90,7 +88,6 @@ const areasFromUser = [
   },
 ];
 
-// Export para o slice atual (mapa para o tipo Area existente)
 export const mockAreas: Area[] = areasFromUser.map(a => ({
   id: a.id,
   name: a.name,
@@ -98,7 +95,6 @@ export const mockAreas: Area[] = areasFromUser.map(a => ({
   maxIdleTimeEnabled: a.maxIdleTimeEnabled,
 }));
 
-// Mock enviado pelo usuário — Checkpad response (com checkpads e ordersheets)
 const checkpadResponse = {
   checkpads: {
     '5ei1cxa': {
@@ -992,7 +988,6 @@ const checkpadResponse = {
   },
 };
 
-// Export para os slices: convertemos o response em arrays aderentes aos tipos atuais
 export const mockCheckpads: Checkpad[] = Object.values(checkpadResponse.checkpads).map((c: any) => ({
   id: c.id,
   hash: c.hash,

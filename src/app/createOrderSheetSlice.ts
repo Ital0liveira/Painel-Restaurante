@@ -80,7 +80,6 @@ const createOrderSheetSlice = createSlice({
       state,
       action: PayloadAction<{ field: 'areaId' | 'checkpadId' | 'notes'; value: number | string | null }>
     ) => {
-      // Type guard updates
       const { field, value } = action.payload;
       if (field === 'areaId') state.step2.areaId = (value as number) ?? null;
       if (field === 'checkpadId') state.step2.checkpadId = (value as number) ?? null;

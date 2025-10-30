@@ -3,9 +3,9 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export type UiStatus = 'Ocupada' | 'Livre' | 'Reservada';
 
 export interface FiltersState {
-  statuses: UiStatus[]; // múltipla seleção
-  attendantName: string | null; // filtrar por nome do atendente
-  searchQuery: string; // busca por mesa/cliente/atendente
+  statuses: UiStatus[];
+  attendantName: string | null;
+  searchQuery: string;
 }
 
 const initialState: FiltersState = {

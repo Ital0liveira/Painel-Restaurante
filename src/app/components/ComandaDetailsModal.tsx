@@ -28,11 +28,9 @@ export default function ComandaDetailsModal() {
     const id = ui.comandaDetails.orderId;
     if (id == null) return null;
     
-    // Primeiro tentar encontrar no Redux
     const reduxOrder = allOrderSheets.find(o => o.id === id);
     if (reduxOrder) return reduxOrder;
     
-    // Se não encontrar no Redux, procurar nos mocks
     return mockOrderSheets.find(o => o.id === id) ?? null;
   }, [ui.comandaDetails.orderId, allOrderSheets]);
 
@@ -55,9 +53,7 @@ export default function ComandaDetailsModal() {
     let list = allCheckpads;
     if (onlyFree) list = list.filter(c => c.activity === 'empty');
     if (filterModel) list = list.filter(c => c.model === filterModel);
-    // evita mostrar o mesmo local atual
     if (currentCheckpadId != null) list = list.filter(c => c.id !== currentCheckpadId);
-    // ordena: livres primeiro já filtrado; em seguida por identifier asc
     return [...list].sort((a,b) => a.identifier.localeCompare(b.identifier, 'pt-BR'));
   }, [allCheckpads, onlyFree, filterModel, currentCheckpadId]);
 
@@ -83,7 +79,6 @@ export default function ComandaDetailsModal() {
     dispatch(setOrderOverride({ orderId: order.id, checkpadId: transferCheckpadId as number }));
     dispatch(addToast({ message: 'Comanda transferida', type: 'success' }));
     setTransferCheckpadId('');
-    // Mantemos o modal aberto para visualização; poderia fechar se preferir
   };
 
   return (

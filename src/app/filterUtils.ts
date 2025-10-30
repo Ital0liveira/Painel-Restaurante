@@ -39,28 +39,23 @@ export function filterCheckpads(
   const q = normalize(filters.searchQuery);
 
   return checkpads.filter((c) => {
-    // Status
     if (wantStatuses.size > 0) {
       const status = mapActivityToUiStatus(c.activity);
       if (!wantStatuses.has(status)) return false;
     }
 
-    // Atendente
     if (attendant) {
       const hasAuthor = normalize(c.authorName).includes(attendant);
       if (!hasAuthor) return false;
     }
 
-    // Busca - prioridade para correspondência exata
     if (q) {
       const identifierNormalized = normalize(c.identifier);
       
-      // Primeiro: tentar correspondência exata no identifier
       if (identifierNormalized === q) {
-        return true; // Correspondência exata encontrada, mostrar esta mesa
+        return true;
       }
 
-      // Se não houve correspondência exata, tentar correspondência parcial como fallback
       const inIdentifier = identifierNormalized.includes(q);
       const inAuthor = normalize(c.authorName).includes(q);
 
@@ -69,16 +64,13 @@ export function filterCheckpads(
         const o = ordersById.get(orderId);
         if (!o) continue;
         const mainIdNormalized = normalize(o.mainIdentifier);
-        // Tentar correspondência exata primeiro no mainIdentifier
         if (mainIdNormalized === q) {
-          return true; // Correspondência exata encontrada, mostrar esta mesa
+          return true;
         }
-        // Fallback para correspondência parcial
         if (mainIdNormalized.includes(q)) {
           inCustomerOrMain = true;
           break;
         }
-        // author.name também pode entrar na busca
         if (normalize(o.author?.name).includes(q)) {
           inCustomerOrMain = true;
           break;

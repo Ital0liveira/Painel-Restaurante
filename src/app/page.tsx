@@ -17,7 +17,6 @@ import ComandaDetailsModal from './components/ComandaDetailsModal';
 import { openComandaDetails } from './uiSlice';
 import { OrderSheet } from './interfaces';
 
-// Adicionar função auxiliar para calcular tempo de ocupação da mesa
 function calculateOccupationTime(
   checkpad: Checkpad,
   ordersIndex: Map<number, OrderSheet>
@@ -28,7 +27,6 @@ function calculateOccupationTime(
   
   if (orders.length === 0) return 0;
   
-  // Encontrar a comanda mais antiga (primeira abertura)
   const oldestOrder = orders.reduce((oldest, current) => {
     const oldestTime = Date.parse(oldest.opened);
     const currentTime = Date.parse(current.opened);
@@ -39,15 +37,13 @@ function calculateOccupationTime(
   if (Number.isNaN(openedTime)) return 0;
   
   const diffMs = Date.now() - openedTime;
-  return Math.max(0, Math.floor(diffMs / 60000)); // minutos
+  return Math.max(0, Math.floor(diffMs / 60000));
 }
 
-// Calcular idleTime (tempo desde último pedido) dinamicamente
 function calculateIdleTime(
   checkpad: Checkpad,
   ordersIndex: Map<number, OrderSheet>
 ): number {
-  // Se lastOrderCreated existe, usar ele
   if (checkpad.lastOrderCreated) {
     const lastOrderTime = Date.parse(checkpad.lastOrderCreated);
     if (!Number.isNaN(lastOrderTime)) {
@@ -56,14 +52,12 @@ function calculateIdleTime(
     }
   }
   
-  // Caso contrário, calcular baseado na comanda mais recente
   const orders = (checkpad.orderSheetIds ?? [])
     .map(id => ordersIndex.get(id))
     .filter(Boolean) as OrderSheet[];
   
   if (orders.length === 0) return 0;
   
-  // Encontrar a comanda mais recente
   const newestOrder = orders.reduce((newest, current) => {
     const newestTime = Date.parse(newest.opened);
     const currentTime = Date.parse(current.opened);
@@ -74,18 +68,16 @@ function calculateIdleTime(
   if (Number.isNaN(openedTime)) return 0;
   
   const diffMs = Date.now() - openedTime;
-  return Math.max(0, Math.floor(diffMs / 60000)); // minutos
+  return Math.max(0, Math.floor(diffMs / 60000));
 }
 
 function CheckpadCard({ checkpad, ordersIndex }: { checkpad: Checkpad, ordersIndex: Map<number, import('./interfaces').OrderSheet> }) {
   const dispatch = useAppDispatch();
   const ui = useAppSelector(s => s.ui);
 
-  // Calcular valores dinamicamente
   const occupationTime = calculateOccupationTime(checkpad, ordersIndex);
   const idleTime = calculateIdleTime(checkpad, ordersIndex);
   
-  // Detectar inatividade (15+ min sem pedido novo)
   const isInactive = checkpad.activity === 'active' && idleTime >= 15;
 
   const handleClick = () => {
@@ -98,10 +90,10 @@ function CheckpadCard({ checkpad, ordersIndex }: { checkpad: Checkpad, ordersInd
 
   const getStatusColor = (activity: Checkpad['activity']) => {
     switch (activity) {
-      case 'active': return 'border-red-500'; // Ocupada - vermelho
-      case 'inactive': return 'border-yellow-500'; // Reservada - amarelo
+      case 'active': return 'border-red-500';
+      case 'inactive': return 'border-yellow-500';
       case 'empty':
-      default: return 'border-green-500'; // Livre - verde
+      default: return 'border-green-500';
     }
   };
 
@@ -112,15 +104,12 @@ function CheckpadCard({ checkpad, ordersIndex }: { checkpad: Checkpad, ordersInd
   const ordersTotal = orders.reduce((sum, o) => sum + (o?.subtotal ?? 0), 0);
   const estimatedTotal = ordersTotal > 0 ? ordersTotal : (checkpad.subtotal ?? 0);
   
-  // Obter primeira comanda para exibir informações
   const firstOrder = orders.find(Boolean);
-  // Priorizar customerName, depois mainIdentifier como fallback
   const customerName = firstOrder?.customerName ?? firstOrder?.mainIdentifier ?? null;
   const comandaIdentifier = firstOrder 
-    ? String(firstOrder.id) // ID da comanda como identificador
+    ? String(firstOrder.id)
     : null;
   
-  // Buscar atendente: primeiro do checkpad, depois das comandas
   const attendantName = checkpad.authorName ?? firstOrder?.author?.name ?? null;
 
   const IconForModel = () => {
@@ -143,7 +132,7 @@ function CheckpadCard({ checkpad, ordersIndex }: { checkpad: Checkpad, ordersInd
       onClick={handleClick}
       className={`rounded-xl bg-white border shadow-sm hover:shadow-md transition-shadow ${
         isInactive 
-          ? 'border-4 border-red-900 ring-2 ring-red-800' // Borda vermelha vinho
+          ? 'border-4 border-red-900 ring-2 ring-red-800'
           : getStatusColor(checkpad.activity)
       } cursor-pointer ${highlight ? 'ring-2 ring-orange-400' : ''}`}
     >
@@ -156,10 +145,10 @@ function CheckpadCard({ checkpad, ordersIndex }: { checkpad: Checkpad, ordersInd
           <span
             className={`text-xs font-medium px-2 py-1 rounded-md ${
               checkpad.activity === 'active'
-                ? 'bg-red-50 text-red-700' // Ocupada - vermelho
+                ? 'bg-red-50 text-red-700'
                 : checkpad.activity === 'inactive'
-                ? 'bg-yellow-50 text-yellow-700' // Reservada - amarelo
-                : 'bg-green-50 text-green-700' // Livre - verde
+                ? 'bg-yellow-50 text-yellow-700'
+                : 'bg-green-50 text-green-700'
             }`}
           >
             {StatusLabel}
@@ -217,7 +206,6 @@ function minutesBetween(dateIso: string): number {
 }
 
 function getComandaIdentifier(o: import('./interfaces').OrderSheet): string {
-  // Prioridade aproximada: mainIdentifier -> checkpad identifier -> id interno
   return (
     o.mainIdentifier ?? o.checkpad?.identifier ?? String(o.id)
   );
@@ -228,7 +216,6 @@ export default function HomePage() {
   const allCheckpads = useAppSelector(selectAllCheckpads);
   const filters = useAppSelector(s => s.filters);
   const allOrderSheets = useAppSelector(selectAllOrderSheets);
-  // Combinar comandas mock iniciais com comandas do Redux
   const allOrders = useMemo(() => {
     const mockSet = new Set(mockOrderSheets.map(o => o.id));
     const reduxOrders = allOrderSheets.filter(o => !mockSet.has(o.id));
@@ -252,7 +239,6 @@ export default function HomePage() {
   const ui = useAppSelector(s => s.ui);
   const filteredOrders = useMemo(() => {
     const q = (filters.searchQuery ?? '').trim().toLowerCase();
-    // aplica overrides superficiais (checkpadId) para refletir transferências
     let list = allOrders.map(o => {
       const override = ui.orderOverrides[o.id];
       if (!override) return o;
@@ -270,7 +256,6 @@ export default function HomePage() {
       });
     }
 
-    // Attention (15+ min sem pedido) — usa tempo desde abertura da comanda
     if (comandaFilters.attentionOnly) {
       list = list.filter(o => {
         const tempoMin = minutesBetween(o.opened);
@@ -309,12 +294,9 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="flex">
-        {/* left sidebar accent */}
         <div className="w-3 bg-orange-500" />
 
         <main className="flex-1 p-6">
-          {/* top bar */
-          }
           <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-semibold text-gray-900">Visão Geral</h1>
@@ -432,7 +414,6 @@ export default function HomePage() {
             </div>
           ) : (
             <>
-              {/* Comandas grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {pagedOrders.map((o) => {
                   const tempoMin = minutesBetween(o.opened);
@@ -476,7 +457,6 @@ export default function HomePage() {
                 })}
               </div>
 
-              {/* pagination */}
               <div className="mt-4 flex items-center justify-center gap-2">
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
@@ -501,12 +481,10 @@ export default function HomePage() {
         </main>
       </div>
 
-      {/* modals */}
       <CreateOrderSheetModal />
       <ComandaDetailsModal />
       <ToastContainer />
 
-      {/* bottom status bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t px-4 py-2 flex items-center justify-between text-xs text-gray-700">
         <div className="flex items-center gap-3">
           <span className="font-medium">Solas Restaurante</span>

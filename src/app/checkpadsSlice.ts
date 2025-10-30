@@ -38,7 +38,6 @@ export const checkpadsSlice = createSlice({
       if (!existing) return;
 
       const currentOrderSheetIds = existing.orderSheetIds ?? [];
-      // Não adicionar se já existe
       if (currentOrderSheetIds.includes(orderSheetId)) return;
 
       checkpadsAdapter.updateOne(state, {
@@ -46,7 +45,6 @@ export const checkpadsSlice = createSlice({
         changes: {
           orderSheetIds: [...currentOrderSheetIds, orderSheetId],
           lastOrderCreated: new Date().toISOString(),
-          // Se mesa estiver vazia, ativa automaticamente
           ...(existing.activity === 'empty' && {
             activity: 'active',
             idleTime: 0,
